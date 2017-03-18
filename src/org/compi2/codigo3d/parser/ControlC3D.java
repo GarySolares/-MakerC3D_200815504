@@ -8,6 +8,7 @@ public class ControlC3D {
     
     private static int temp = 0;
     private static String c3d = "";
+    private static int etk = 0;
     
     /**
      * Reinicia las variables estáticas relacionadas con la generación del
@@ -16,6 +17,7 @@ public class ControlC3D {
     public static void reiniciar(){
         temp = 0;
         c3d = "";
+        etk = 0;
     }
     
     /**
@@ -24,6 +26,11 @@ public class ControlC3D {
      */
     public static String generaTemp(){
         return "t$"+temp++;
+    }
+    
+    public static String generaEtiqueta(){
+        etk++;
+        return "E"+ etk;
     }
     
     /**

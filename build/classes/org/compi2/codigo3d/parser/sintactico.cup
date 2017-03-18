@@ -42,14 +42,15 @@ action code
         String c3d = temp + " = ! " + exp.getCad() + ";\n";
         ControlC3D.agregarC3D(c3d);
         return new NodoC3D(temp); 
-	}	
+	}
+
 	
 :}
 terminal Op_Or, Op_And,Op_Not;
 terminal Op_MaQ, Op_MeQ, Op_MaIQ, Op_MeIQ, Op_Dif, Op_Sem;
 terminal String ID, ENTERO, DECIMAL;
 terminal TokenC3D MAS, MENOS, MULT, DIV, POT, PAR_IZQ, PAR_DER;
-nonterminal NodoC3D inicial, expresion,Expresion_Sin_Numero,Operacion_Or_Sin_Numero,Operacion_And_Sin_Numero,Operacion_Not,Operacion_Relacional_Sin_Numero,Operacion_Aritmetica_Sin_Numero,Operacion_Logica_Sin_Numero;
+nonterminal C3D_Object inicial, expresion,Expresion_Sin_Numero,Operacion_Or_Sin_Numero,Operacion_And_Sin_Numero,Operacion_Not,Operacion_Relacional_Sin_Numero,Operacion_Aritmetica_Sin_Numero,Operacion_Logica_Sin_Numero;
 
 precedence left MAS, MENOS;
 precedence left MULT, DIV; 
@@ -60,7 +61,7 @@ start with inicial;
 inicial     ::= {: ControlC3D.reiniciar(); :} Expresion_Sin_Numero:exp 
                     {: 
                         RESULT = exp;
-                        ControlC3D.agregarC3D("//Último valor: " + exp.getCad());
+                        ControlC3D.agregarC3D(exp.Show());
                     :};
 					
 					
@@ -75,18 +76,18 @@ inicial     ::= {: ControlC3D.reiniciar(); :} Expresion_Sin_Numero:exp
 Operacion_Logica_Sin_Numero	::=	Operacion_Or_Sin_Numero:exp{:RESULT = exp; :}
 								;
 
-Operacion_Or_Sin_Numero     ::=	Operacion_Or_Sin_Numero:izq  Op_Or  Operacion_And_Sin_Numero:der {:RESULT =  GenerarNodo(izq, der,"||");:}
+Operacion_Or_Sin_Numero     ::=	Operacion_Or_Sin_Numero:izq  Op_Or  Operacion_And_Sin_Numero:der {:C3D_Object A = new C3D_Object(); A.generarLogicoOr(izq, der); RESULT =A;:}
 								|Operacion_And_Sin_Numero:exp{:RESULT = exp; :}
 								;
 
-Operacion_And_Sin_Numero	::=	Operacion_And_Sin_Numero:izq  Op_And  Operacion_Not:der {:RESULT =  GenerarNodo(izq, der,"&&");:}
+Operacion_And_Sin_Numero	::=	Operacion_And_Sin_Numero:izq  Op_And  Operacion_Not:der {:C3D_Object A = new C3D_Object(); A.generarLogicoAnd(izq, der); RESULT =A;:}
 								|Operacion_Not:exp	{:RESULT = exp; :}
 								;
 								
 								
 
 
-Operacion_Not     			::= Op_Not  Operacion_Not:exp			{:RESULT =  GenerarNodoNot(exp);:}
+Operacion_Not     			::= Op_Not  Operacion_Relacional_Sin_Numero:exp			{:C3D_Object A = new C3D_Object(); A.generarNegadoLogico(exp); RESULT =A;:}
 								| Operacion_Relacional_Sin_Numero:exp	{:RESULT = exp; :}
 								;									
 								
@@ -96,13 +97,13 @@ Operacion_Not     			::= Op_Not  Operacion_Not:exp			{:RESULT =  GenerarNodoNot(
 
 
 
-Operacion_Relacional_Sin_Numero	::=   Operacion_Aritmetica_Sin_Numero:izq  Op_MaIQ  Operacion_Aritmetica_Sin_Numero:der	{:RESULT =  GenerarNodo(izq, der,">=");:}
-									| Operacion_Aritmetica_Sin_Numero:izq  Op_MeIQ  Operacion_Aritmetica_Sin_Numero:der	{:RESULT =  GenerarNodo(izq, der,"<=");:}
-									| Operacion_Aritmetica_Sin_Numero:izq  Op_MeQ	 Operacion_Aritmetica_Sin_Numero:der	{:RESULT =  GenerarNodo(izq, der,"<");:}
-									| Operacion_Aritmetica_Sin_Numero:izq  Op_MaQ 	 Operacion_Aritmetica_Sin_Numero:der	{:RESULT =  GenerarNodo(izq, der,">");:}
-									| Operacion_Aritmetica_Sin_Numero:izq  Op_Sem 	 Operacion_Aritmetica_Sin_Numero:der	{:RESULT =  GenerarNodo(izq, der,"==");:}
-									| Operacion_Aritmetica_Sin_Numero:izq  Op_Dif 	 Operacion_Aritmetica_Sin_Numero:der	{:RESULT =  GenerarNodo(izq, der,"!=");:}
-									| Operacion_Aritmetica_Sin_Numero:exp												{:RESULT = exp; :}
+Operacion_Relacional_Sin_Numero	::=   Operacion_Aritmetica_Sin_Numero:izq  Op_MaIQ  Operacion_Aritmetica_Sin_Numero:der		{:C3D_Object A = new C3D_Object(); A.generarRelacional(izq, der, ">="); RESULT =A;:}
+									| Operacion_Aritmetica_Sin_Numero:izq  Op_MeIQ  Operacion_Aritmetica_Sin_Numero:der		{:C3D_Object A = new C3D_Object(); A.generarRelacional(izq, der, "<="); RESULT =A;:}
+									| Operacion_Aritmetica_Sin_Numero:izq  Op_MeQ	 Operacion_Aritmetica_Sin_Numero:der	{:C3D_Object A = new C3D_Object(); A.generarRelacional(izq, der, "<"); RESULT =A;:}
+									| Operacion_Aritmetica_Sin_Numero:izq  Op_MaQ 	 Operacion_Aritmetica_Sin_Numero:der	{:C3D_Object A = new C3D_Object(); A.generarRelacional(izq, der, ">"); RESULT =A;:}
+									| Operacion_Aritmetica_Sin_Numero:izq  Op_Sem 	 Operacion_Aritmetica_Sin_Numero:der	{:C3D_Object A = new C3D_Object(); A.generarRelacional(izq, der, "=="); RESULT =A;:}
+									| Operacion_Aritmetica_Sin_Numero:izq  Op_Dif 	 Operacion_Aritmetica_Sin_Numero:der	{:C3D_Object A = new C3D_Object(); A.generarRelacional(izq, der, "!="); RESULT =A;:}
+									| Operacion_Aritmetica_Sin_Numero:exp													{:RESULT = exp; :}
 									;
 					
 					
@@ -121,14 +122,14 @@ Operacion_Aritmetica_Sin_Numero ::= expresion:exp{:RESULT = exp; :};
 					
 					
 
-expresion   ::= expresion:izq MAS expresion:der		{:RESULT =  GenerarNodo(izq, der,"+");:}
-            |   expresion:izq MENOS expresion:der	{:RESULT =  GenerarNodo(izq, der,"-");:}
-            |   expresion:izq MULT expresion:der	{:RESULT =  GenerarNodo(izq, der,"*");:}
-            |   expresion:izq DIV expresion:der		{:RESULT =  GenerarNodo(izq, der,"/");:}
-            |   expresion:izq POT expresion:der		{:RESULT =  GenerarNodo(izq, der,"^");:}
-            |   MENOS expresion:exp 				{:RESULT =  GenerarNodoNegar(exp);:}
+expresion   ::= expresion:izq MAS expresion:der		{:C3D_Object A = new C3D_Object(); A.generarAritmetico(izq, der, "+"); RESULT =A;:}
+            |   expresion:izq MENOS expresion:der	{:C3D_Object A = new C3D_Object(); A.generarAritmetico(izq, der, "-"); RESULT =A;:}
+            |   expresion:izq MULT expresion:der	{:C3D_Object A = new C3D_Object(); A.generarAritmetico(izq, der, "*"); RESULT =A;:}
+            |   expresion:izq DIV expresion:der		{:C3D_Object A = new C3D_Object(); A.generarAritmetico(izq, der, "/"); RESULT =A;:}
+            |   expresion:izq POT expresion:der		{:C3D_Object A = new C3D_Object(); A.generarAritmetico(izq, der, "^"); RESULT =A;:}
+            |   MENOS expresion:exp 				{:C3D_Object A = new C3D_Object(); A.generarNegadoAritmetico(exp); RESULT =A;:}
             |   PAR_IZQ Expresion_Sin_Numero:exp PAR_DER       {:RESULT = exp; :}
-            |   ID:id                               {:RESULT = new NodoC3D(id); :}
-            |   ENTERO:entero                       {:RESULT = new NodoC3D(entero); :}
-            |   DECIMAL:decimal                     {:RESULT = new NodoC3D(decimal); :}
+            |   ID:id                               {:C3D_Object A = new C3D_Object(); A.generarSimple(id); RESULT =A;:}
+            |   ENTERO:entero                       {:C3D_Object A = new C3D_Object(); A.generarSimple(entero); RESULT =A;:}
+            |   DECIMAL:decimal                     {:C3D_Object A = new C3D_Object(); A.generarSimple(decimal); RESULT =A;:}
             ;
